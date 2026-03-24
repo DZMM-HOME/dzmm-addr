@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
-        
+
         :root {
             --primary-color: #4361ee;
             --primary-light: #4895ef;
@@ -19,13 +19,13 @@
             --card-bg: #ffffff;
             --accent-color: #4cc9f0;
         }
-        
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
-        
+
         body {
             font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
             line-height: 1.6;
@@ -33,7 +33,7 @@
             color: var(--text-color);
             min-height: 100vh;
         }
-        
+
         .container {
             max-width: 800px;
             margin: 40px auto;
@@ -44,7 +44,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .container::before {
             content: '';
             position: absolute;
@@ -54,13 +54,13 @@
             height: 6px;
             background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
         }
-        
+
         header {
             text-align: center;
             padding: 10px 0 30px;
             position: relative;
         }
-        
+
         header::after {
             content: '';
             position: absolute;
@@ -72,7 +72,7 @@
             background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
             border-radius: 3px;
         }
-        
+
         h1 {
             color: var(--primary-dark);
             margin: 0;
@@ -82,7 +82,7 @@
             position: relative;
             display: inline-block;
         }
-        
+
         .site-title {
             font-size: 22px;
             color: var(--primary-color);
@@ -94,15 +94,15 @@
             justify-content: center;
             gap: 8px;
         }
-        
+
         .site-title i {
             color: var(--secondary-color);
         }
-        
+
         .content {
             padding: 20px 0;
         }
-        
+
         .address-box {
             background: linear-gradient(145deg, #ffffff, #f0f7ff);
             border-radius: 16px;
@@ -111,7 +111,7 @@
             box-shadow: 0 5px 15px rgba(65, 84, 241, 0.1);
             position: relative;
         }
-        
+
         .address-item {
             margin-bottom: 15px;
             padding: 15px;
@@ -122,25 +122,25 @@
             transition: all 0.3s ease;
             border-left: 3px solid transparent;
         }
-        
+
         .address-item:hover {
             transform: translateY(-3px);
             background: rgba(255, 255, 255, 0.9);
             border-left: 3px solid var(--primary-color);
             box-shadow: 0 8px 20px rgba(65, 84, 241, 0.15);
         }
-        
+
         .address-item:last-child {
             margin-bottom: 0;
         }
-        
+
         .address-item p {
             display: flex;
             align-items: center;
             gap: 8px;
             margin: 0;
         }
-        
+
         .address-item a {
             color: var(--primary-color);
             text-decoration: none;
@@ -149,32 +149,12 @@
             padding: 3px 8px;
             border-radius: 4px;
         }
-        
+
         .address-item a:hover {
             background-color: rgba(67, 97, 238, 0.1);
             color: var(--primary-dark);
         }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 25px;
-            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
-            color: #fff;
-            text-decoration: none;
-            border-radius: 30px;
-            font-weight: 500;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
-        }
-        
-        .btn:hover {
-            background: linear-gradient(45deg, var(--primary-dark), var(--primary-color));
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.4);
-        }
-        
+
         .contact {
             margin: 30px 0;
             padding: 25px;
@@ -184,7 +164,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .contact::before {
             content: '';
             position: absolute;
@@ -194,7 +174,7 @@
             height: 100%;
             background: var(--accent-color);
         }
-        
+
         .tips {
             margin: 30px 0;
             padding: 25px;
@@ -204,7 +184,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .tips::before {
             content: '';
             position: absolute;
@@ -214,21 +194,21 @@
             height: 100%;
             background: var(--secondary-color);
         }
-        
+
         .tips ul, .tips ol {
             padding-left: 25px;
             margin: 15px 0;
         }
-        
+
         .tips li {
             margin-bottom: 15px;
             position: relative;
         }
-        
+
         .tips li:last-child {
             margin-bottom: 0;
         }
-        
+
         .highlight {
             background: linear-gradient(90deg, rgba(76, 201, 240, 0.15), rgba(67, 97, 238, 0.15));
             color: var(--primary-dark);
@@ -236,7 +216,7 @@
             border-radius: 4px;
             font-weight: 500;
         }
-        
+
         .section-title {
             display: flex;
             align-items: center;
@@ -246,11 +226,11 @@
             font-size: 18px;
             margin-bottom: 15px;
         }
-        
+
         .section-title i {
             color: var(--accent-color);
         }
-        
+
         footer {
             text-align: center;
             margin-top: 40px;
@@ -259,28 +239,28 @@
             font-size: 14px;
             border-top: 1px solid rgba(0, 0, 0, 0.05);
         }
-        
+
         @media (max-width: 768px) {
             .container {
                 margin: 15px;
                 width: auto;
                 padding: 20px;
             }
-            
+
             h1 {
                 font-size: 28px;
             }
-            
+
             .address-item p {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .address-item strong {
                 margin-bottom: 5px;
             }
         }
-        
+
         @keyframes pulse {
             0% {
                 box-shadow: 0 0 0 0 rgba(247, 37, 133, 0.4);
@@ -292,7 +272,7 @@
                 box-shadow: 0 0 0 0 rgba(247, 37, 133, 0);
             }
         }
-        
+
         .new-badge {
             display: inline-block;
             padding: 3px 8px;
@@ -316,16 +296,19 @@
             <div class="address-box">
                 <div class="site-title"><i class="fas fa-link"></i> 访问地址</div>
                 <div class="address-item">
-                    <p><strong><i class="fas fa-certificate"></i> 官方域名：</strong><a href="https://www.dzmm.io" target="_blank">www.dzmm.io</a><span class="new-badge">推荐</span></p>
+                    <p><strong><i class="fas fa-certificate"></i> 推荐域名：</strong><a href="https://www.duskpine.top" target="_blank">www.duskpine.top</a><span class="new-badge">推荐</span></p>
                 </div>
                 <div class="address-item">
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.laopo.ai" target="_blank">www.laopo.ai</a></p>
+                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.kelphin.top" target="_blank">www.kelphin.top</a></p>
                 </div>
                 <div class="address-item">
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://电子魅魔.com" target="_blank">电子魅魔.com</a></p>
+                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.fendal.top" target="_blank">www.fendal.top</a></p>
                 </div>
                 <div class="address-item">
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://DisrespectfulZoosporiferousMumpedMyectomize.click" target="_blank">DisrespectfulZoosporiferousMumpedMyectomize.click</a></p>
+                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.turfle.top" target="_blank">www.turfle.top</a></p>
+                </div>
+                <div class="address-item">
+                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.velvetpaw.top" target="_blank">www.velvetpaw.top</a></p>
                 </div>
                 <div class="address-item">
                     <p><strong><i class="fas fa-plane"></i> 海外访问域名：</strong><a href="https://www.dzmm.ai" target="_blank">www.dzmm.ai</a></p>
@@ -337,7 +320,7 @@
 
             <div class="contact">
                 <div class="section-title"><i class="fas fa-envelope"></i> 联络邮件</div>
-                <p><a href="mailto:dzmm-address@dzmm.io"><i class="fas fa-at"></i>dzmm-address@dzmm.io</a></p>
+                <p><a href="mailto:dzmm-address@gpt4novel.com"><i class="fas fa-at"></i>dzmm-address@gpt4novel.com</a></p>
                 <p><i class="fas fa-info-circle"></i> 发送邮件获取新地址，请检查垃圾邮箱</p>
             </div>
 
@@ -347,18 +330,20 @@
                     <li><i class="fas fa-window-maximize"></i> 为获得最佳浏览体验，推荐使用 <span class="highlight">Chrome</span>、<span class="highlight">Firefox</span> 或 <span class="highlight">Safari</span> 等现代浏览器访问本站。本站兼容 <span class="highlight">Chrome 74</span> 及以上版本。</li>
                     <li><i class="fas fa-check-circle"></i> <strong>重要提示：本页面提供的网址除了海外访问地址，其余均为可直接访问地址，无需使用代理工具。</strong></li>
                     <li><i class="fas fa-bookmark"></i> 建议收藏本页面地址，方便日后访问。</li>
+                    <li><i class="fas fa-exclamation-triangle"></i> 如果某个域名无法访问，请尝试其他备用域名。</li>
                 </ul>
                 <div class="section-title"><i class="fas fa-save"></i> 如何收藏本页面：</div>
                 <ol>
                     <li><i class="fas fa-desktop"></i> 使用电脑的用户，请按键盘上的 <span class="highlight">CTRL+D</span> 进行收藏</li>
-                    <li><i class="fab fa-apple"></i> 苹果手机用户在浏览器点击分享图标，然后选择“添加到个人收藏”或“添加到主屏幕”</li>
-                    <li><i class="fab fa-android"></i> 安卓手机用户点击三点菜单，然后选择“添加到书签”或“添加到主屏幕”</li>
+                    <li><i class="fab fa-apple"></i> 苹果手机用户在浏览器点击分享图标，然后选择"添加到个人收藏"或"添加到主屏幕"</li>
+                    <li><i class="fab fa-android"></i> 安卓手机用户点击三点菜单，然后选择"添加到书签"或"添加到主屏幕"</li>
                 </ol>
             </div>
         </div>
 
         <footer>
             <p><i class="far fa-copyright"></i> 2025 DZMM | 本页面所有内容仅供参考，请遵守当地法律法规</p>
+            <p style="margin-top: 8px; font-size: 12px; color: #adb5bd;">最后更新: 2026-03-24</p>
         </footer>
     </div>
 </body>
