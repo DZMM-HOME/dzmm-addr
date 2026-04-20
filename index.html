@@ -419,10 +419,57 @@
     </div>
 
     <script>
+        // ========================================================================
+        // ⚠️  签到回跳白名单 —— 主站域名有任何变动（新增 / 下线 / 更名）必须同步更新！
+        //
+        //   这份列表决定了从 addr 页点"立即领取奖励"之后能跳到哪些域。
+        //   不在列表里的 returnOrigin 会被拒绝，banner 根本不会显示。
+        //
+        //   ✅ 维护步骤：
+        //     1. 改下面的 ALLOWED_HOSTS 数组
+        //     2. 同步改 ./sites.txt（给人看的版本，两处必须一致）
+        //     3. 部署到所有 3 个镜像：
+        //        - DZMM-HOME/dzmm-addr  →  dzmm-home.github.io/dzmm-addr/
+        //        - dzmm/dzmm-addr       →  dzmm.github.io/dzmm-addr/
+        //        - Cloudflare Pages     →  dzmm.pages.dev
+        //
+        //   ❌ 不要做：
+        //     - 不要用通配符 '*.top' 之类，每个 apex 域必须显式列出
+        //     - 不要加入 github.io / pages.dev 等镜像域（主站才是回跳目的地）
+        //
+        //   注：电子魅魔.com 这种 Unicode 域会在运行时被 new URL() 自动 punycode
+        //   化，和浏览器 location.hostname 比对时一致，无需手写 xn-- 形式。
+        // ========================================================================
+        var ALLOWED_HOSTS = [
+            'dzmm.ai',
+            'dzmm.io',
+            'laopo.ai',
+            'laopoai.com',
+            '电子魅魔.com',
+            'velvetpaw.top',
+            'duskpine.top',
+            'kelphin.top',
+            'fendal.top',
+            'turfle.top',
+        ];
+
         (function () {
             var params = new URLSearchParams(location.search);
             var token = params.get('checkin');
             if (!token) return;
+
+            // 把白名单 normalize 成小写 punycode host，和 URL.hostname 对齐
+            var normalized = ALLOWED_HOSTS.map(function (h) {
+                try { return new URL('https://' + h).hostname.toLowerCase(); }
+                catch (e) { return null; }
+            }).filter(Boolean);
+
+            function isAllowedHost(host) {
+                host = host.toLowerCase().replace(/^www\./, '');
+                return normalized.some(function (a) {
+                    return host === a || host.endsWith('.' + a);
+                });
+            }
 
             try {
                 var payloadB64 = token.split('.')[0];
@@ -432,14 +479,19 @@
                 if (pad) b64 += '===='.slice(pad);
                 var payload = JSON.parse(atob(b64));
                 var returnOrigin = payload && payload.returnOrigin;
-                if (typeof returnOrigin !== 'string' || !/^https?:\/\//.test(returnOrigin)) return;
+                if (typeof returnOrigin !== 'string') return;
 
-                var callbackUrl = returnOrigin + '/tasks/checkin-callback?checkin=' + encodeURIComponent(token);
+                var parsed;
+                try { parsed = new URL(returnOrigin); } catch (e) { return; }
+                if (parsed.protocol !== 'https:') return;
+                if (!isAllowedHost(parsed.hostname)) return;
+
+                var callbackUrl = parsed.origin + '/tasks/checkin-callback?checkin=' + encodeURIComponent(token);
                 var banner = document.getElementById('checkin-banner');
                 var cta = document.getElementById('checkin-cta');
                 var originEl = document.getElementById('checkin-origin');
                 if (banner && cta && originEl) {
-                    originEl.textContent = returnOrigin;
+                    originEl.textContent = parsed.origin;
                     cta.href = callbackUrl;
                     banner.style.display = 'block';
                     banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
