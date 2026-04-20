@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>DZMM - 网址发布页</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -284,6 +285,71 @@
             vertical-align: middle;
             animation: pulse 2s infinite;
         }
+
+        .checkin-box {
+            display: none;
+            margin: 0 0 30px;
+            padding: 25px;
+            background: linear-gradient(145deg, #ffffff, #fff0f6);
+            border-radius: 16px;
+            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.1);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .checkin-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--secondary-color);
+        }
+
+        .checkin-box .section-title {
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .checkin-desc {
+            margin: 10px 0 18px;
+            color: var(--text-light);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .checkin-origin {
+            display: inline-block;
+            padding: 2px 10px;
+            background: rgba(247, 37, 133, 0.1);
+            color: var(--secondary-color);
+            border-radius: 999px;
+            font-family: 'SF Mono', Menlo, Consolas, monospace;
+            font-size: 13px;
+        }
+
+        .checkin-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: linear-gradient(90deg, var(--secondary-color), #ff6b9f);
+            color: #fff;
+            border-radius: 999px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(247, 37, 133, 0.25);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .checkin-cta:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(247, 37, 133, 0.35);
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -293,6 +359,18 @@
         </header>
 
         <div class="content">
+            <section id="checkin-banner" class="checkin-box" role="region" aria-label="签到引导">
+                <div class="section-title">
+                    <i class="fas fa-gift"></i> 完成签到并领取奖励
+                </div>
+                <p class="checkin-desc">
+                    感谢访问永久入口。点击下方按钮返回主站领取签到积分。<br>
+                    即将跳转到 <span id="checkin-origin" class="checkin-origin"></span>
+                </p>
+                <a id="checkin-cta" class="checkin-cta" href="#" rel="noopener">
+                    <i class="fas fa-check-circle"></i> 立即领取奖励
+                </a>
+            </section>
             <div class="address-box">
                 <div class="site-title"><i class="fas fa-link"></i> 访问地址</div>
                 <div class="address-item">
@@ -339,5 +417,37 @@
             <p style="margin-top: 8px; font-size: 12px; color: #adb5bd;">最后更新: 2026-03-24</p>
         </footer>
     </div>
+
+    <script>
+        (function () {
+            var params = new URLSearchParams(location.search);
+            var token = params.get('checkin');
+            if (!token) return;
+
+            try {
+                var payloadB64 = token.split('.')[0];
+                if (!payloadB64) return;
+                var b64 = payloadB64.replace(/-/g, '+').replace(/_/g, '/');
+                var pad = b64.length % 4;
+                if (pad) b64 += '===='.slice(pad);
+                var payload = JSON.parse(atob(b64));
+                var returnOrigin = payload && payload.returnOrigin;
+                if (typeof returnOrigin !== 'string' || !/^https?:\/\//.test(returnOrigin)) return;
+
+                var callbackUrl = returnOrigin + '/tasks/checkin-callback?checkin=' + encodeURIComponent(token);
+                var banner = document.getElementById('checkin-banner');
+                var cta = document.getElementById('checkin-cta');
+                var originEl = document.getElementById('checkin-origin');
+                if (banner && cta && originEl) {
+                    originEl.textContent = returnOrigin;
+                    cta.href = callbackUrl;
+                    banner.style.display = 'block';
+                    banner.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            } catch (e) {
+                // malformed or tampered token — ignore
+            }
+        })();
+    </script>
 </body>
 </html>
