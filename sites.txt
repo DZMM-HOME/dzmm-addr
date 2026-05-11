@@ -4,3 +4,5 @@ kelphin.top
 fendal.top
 turfle.top
 ainexa.top
+aibora.top
+aizora.top
