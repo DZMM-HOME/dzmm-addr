@@ -2,449 +2,275 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="referrer" content="no-referrer">
-    <title>DZMM - 网址发布页</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="theme-color" content="#6366f1">
+    <title>DZMM · 线路优选入口</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
-
+        /* 零外部依赖：系统字体 + 内联 SVG，避免国内被墙的 Google Fonts / CDN 拖慢首屏 */
         :root {
-            --primary-color: #4361ee;
-            --primary-light: #4895ef;
-            --primary-dark: #3a0ca3;
-            --secondary-color: #f72585;
-            --text-color: #2b2d42;
-            --text-light: #8d99ae;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --accent-color: #4cc9f0;
+            --indigo: #6366f1;
+            --indigo-d: #4f46e5;
+            --violet: #a855f7;
+            --ink: #1e293b;
+            --muted: #64748b;
+            --line: #e8ebf3;
+            --ok: #16a34a;
+            --warn: #d97706;
+            --bad: #dc2626;
+            --surface: #ffffff;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'Noto Sans SC', 'Microsoft YaHei', sans-serif;
-            line-height: 1.6;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+            color: var(--ink);
+            line-height: 1.55;
+            background:
+                radial-gradient(1200px 500px at 50% -10%, #e0e7ff 0%, transparent 60%),
+                linear-gradient(170deg, #f5f7ff 0%, #faf5ff 45%, #fdf2f8 100%);
             min-height: 100vh;
+            padding: max(20px, env(safe-area-inset-top)) 16px calc(28px + env(safe-area-inset-bottom));
         }
 
-        .container {
-            max-width: 800px;
-            margin: 40px auto;
-            padding: 30px;
-            background-color: var(--card-bg);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            border-radius: 16px;
-            position: relative;
-            overflow: hidden;
+        .wrap { max-width: 480px; margin: 0 auto; }
+
+        /* 顶部品牌 */
+        .brand { text-align: center; padding: 14px 0 22px; }
+        .brand .logo {
+            display: inline-flex; align-items: center; gap: 9px;
+            font-size: 26px; font-weight: 800; letter-spacing: 0.3px;
+            background: linear-gradient(120deg, var(--indigo), var(--violet));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .brand .logo .dot {
+            width: 30px; height: 30px; border-radius: 9px; flex: none;
+            background: linear-gradient(135deg, var(--indigo), var(--violet));
+            display: grid; place-items: center;
+        }
+        .brand .tagline { margin-top: 7px; font-size: 13.5px; color: var(--muted); }
+
+        /* 卡片通用 */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(79, 70, 229, 0.08);
         }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 6px;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        /* Hero —— 一键进最快线路 */
+        .hero {
+            position: relative; overflow: hidden;
+            border-radius: 22px; padding: 22px 20px 20px;
+            background: linear-gradient(135deg, #6366f1 0%, #7c3aed 55%, #a855f7 100%);
+            color: #fff; margin-bottom: 16px;
+            box-shadow: 0 16px 44px rgba(124, 58, 237, 0.28);
         }
-
-        header {
-            text-align: center;
-            padding: 10px 0 30px;
-            position: relative;
+        .hero::after {
+            content: ''; position: absolute; right: -40px; top: -40px;
+            width: 160px; height: 160px; border-radius: 50%;
+            background: rgba(255, 255, 255, 0.12);
         }
-
-        header::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100px;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-            border-radius: 3px;
+        .hero-label {
+            display: inline-flex; align-items: center; gap: 7px;
+            font-size: 12.5px; font-weight: 600; opacity: 0.92;
+            background: rgba(255, 255, 255, 0.16); padding: 4px 11px; border-radius: 999px;
         }
-
-        h1 {
-            color: var(--primary-dark);
-            margin: 0;
-            font-size: 36px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-            position: relative;
-            display: inline-block;
+        .hero-domain {
+            font-size: 25px; font-weight: 800; margin: 13px 0 3px;
+            letter-spacing: 0.2px; word-break: break-all; min-height: 30px;
         }
-
-        .site-title {
-            font-size: 22px;
-            color: var(--primary-color);
-            margin: 25px 0 15px;
-            text-align: center;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+        .hero-meta { font-size: 13px; opacity: 0.9; min-height: 18px; }
+        .hero-cta {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            margin-top: 16px; padding: 14px; border-radius: 14px;
+            background: #fff; color: var(--indigo-d);
+            font-size: 16px; font-weight: 800; text-decoration: none;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.2s;
         }
+        .hero-cta:active { transform: scale(0.985); }
+        .hero-cta.pending { opacity: 0.6; pointer-events: none; }
+        .hero-cta svg { width: 18px; height: 18px; }
 
-        .site-title i {
-            color: var(--secondary-color);
+        /* 线路列表 */
+        .lines { padding: 6px; margin-bottom: 16px; }
+        .lines-head {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 11px 12px 9px;
         }
-
-        .content {
-            padding: 20px 0;
+        .lines-head .t { font-size: 14px; font-weight: 700; color: var(--ink); }
+        .retest {
+            display: inline-flex; align-items: center; gap: 5px;
+            background: none; border: none; cursor: pointer;
+            color: var(--indigo); font-size: 13px; font-weight: 600; font-family: inherit;
+            padding: 4px 6px; border-radius: 8px;
         }
+        .retest:active { background: #eef2ff; }
+        .retest:disabled { color: var(--muted); cursor: default; }
+        .retest svg { width: 14px; height: 14px; }
 
-        .address-box {
-            background: linear-gradient(145deg, #ffffff, #f0f7ff);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(65, 84, 241, 0.1);
-            position: relative;
+        .line {
+            display: flex; align-items: center; gap: 12px;
+            padding: 13px 14px; margin: 4px 6px; border-radius: 13px;
+            text-decoration: none; color: var(--ink);
+            border: 1px solid transparent; transition: background 0.2s, border-color 0.2s, opacity 0.3s;
         }
-
-        .address-item {
-            margin-bottom: 15px;
-            padding: 15px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
+        .line:active { background: #f6f7fb; }
+        .line .rank {
+            flex: none; width: 22px; height: 22px; border-radius: 7px;
+            display: grid; place-items: center; font-size: 12px; font-weight: 700;
+            background: #eef2ff; color: var(--indigo-d);
         }
-
-        .address-item:hover {
-            transform: translateY(-3px);
-            background: rgba(255, 255, 255, 0.9);
-            border-left: 3px solid var(--primary-color);
-            box-shadow: 0 8px 20px rgba(65, 84, 241, 0.15);
+        .line .host { flex: 1; font-size: 15px; font-weight: 600; word-break: break-all; }
+        .line .status {
+            flex: none; display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12.5px; font-weight: 700; padding: 4px 10px; border-radius: 999px;
+            white-space: nowrap;
         }
+        .line .status .pdot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+        .status.testing { background: #f1f5f9; color: var(--muted); }
+        .status.s-fast { background: rgba(22, 163, 74, 0.12); color: var(--ok); }
+        .status.s-fast .pdot { background: var(--ok); }
+        .status.s-ok { background: rgba(217, 119, 6, 0.13); color: var(--warn); }
+        .status.s-ok .pdot { background: var(--warn); }
+        .status.s-slow { background: rgba(217, 119, 6, 0.13); color: var(--warn); }
+        .status.s-slow .pdot { background: var(--warn); }
+        .status.s-bad { background: rgba(220, 38, 38, 0.1); color: var(--bad); }
+        .status.s-bad .pdot { background: var(--bad); }
 
-        .address-item:last-child {
-            margin-bottom: 0;
+        .line.best {
+            border-color: rgba(22, 163, 74, 0.35);
+            background: linear-gradient(90deg, rgba(22, 163, 74, 0.07), rgba(22, 163, 74, 0.02));
         }
+        .line.best .rank { background: var(--ok); color: #fff; }
+        .line.dead { opacity: 0.46; }
+        .line.dead .rank { background: #f1f5f9; color: var(--muted); }
 
-        .address-item p {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 0;
+        /* 次要入口 */
+        .alts { margin-bottom: 16px; padding: 6px; }
+        .alt {
+            display: flex; align-items: center; gap: 11px;
+            padding: 13px 14px; margin: 4px 6px; border-radius: 13px;
+            text-decoration: none; color: var(--ink); font-size: 14px;
         }
-
-        .address-item a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s;
-            padding: 3px 8px;
-            border-radius: 4px;
+        .alt:active { background: #f6f7fb; }
+        .alt .ico {
+            flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
+            background: #eef2ff; font-size: 15px;
         }
+        .alt .sub { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; word-break: break-all; }
+        .alt b { font-weight: 600; }
 
-        .address-item a:hover {
-            background-color: rgba(67, 97, 238, 0.1);
-            color: var(--primary-dark);
-        }
-
-        .contact {
-            margin: 30px 0;
-            padding: 25px;
-            background: linear-gradient(145deg, #ffffff, #f0f7ff);
-            border-radius: 16px;
-            box-shadow: 0 5px 15px rgba(65, 84, 241, 0.1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .contact::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--accent-color);
-        }
-
+        /* 提示 + 签到 */
         .tips {
-            margin: 30px 0;
-            padding: 25px;
-            background: linear-gradient(145deg, #ffffff, #f0f7ff);
-            border-radius: 16px;
-            box-shadow: 0 5px 15px rgba(65, 84, 241, 0.1);
-            position: relative;
-            overflow: hidden;
+            padding: 15px 18px; margin-bottom: 16px; font-size: 13px; color: var(--muted);
+            background: rgba(255, 255, 255, 0.6); border: 1px solid var(--line); border-radius: 16px;
+        }
+        .tips b { color: var(--ink); font-weight: 600; }
+
+        .checkin { display: none; padding: 18px 20px; margin-bottom: 16px; text-align: center; border-left: 4px solid #ec4899; }
+        .checkin .ct { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+        .checkin .cd { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+        .checkin .origin { color: #ec4899; font-weight: 600; word-break: break-all; }
+        .checkin .cbtn {
+            display: inline-flex; align-items: center; gap: 7px; padding: 11px 24px; border-radius: 999px;
+            background: linear-gradient(90deg, #ec4899, #f472b6); color: #fff;
+            font-size: 14px; font-weight: 700; text-decoration: none;
         }
 
-        .tips::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--secondary-color);
-        }
+        footer { text-align: center; font-size: 12px; color: #94a3b8; padding: 8px 0 4px; }
 
-        .tips ul, .tips ol {
-            padding-left: 25px;
-            margin: 15px 0;
-        }
-
-        .tips li {
-            margin-bottom: 15px;
-            position: relative;
-        }
-
-        .tips li:last-child {
-            margin-bottom: 0;
-        }
-
-        .highlight {
-            background: linear-gradient(90deg, rgba(76, 201, 240, 0.15), rgba(67, 97, 238, 0.15));
-            color: var(--primary-dark);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-weight: 500;
-        }
-
-        .section-title {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--primary-dark);
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 15px;
-        }
-
-        .section-title i {
-            color: var(--accent-color);
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding: 20px 0;
-            color: var(--text-light);
-            font-size: 14px;
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                margin: 15px;
-                width: auto;
-                padding: 20px;
-            }
-
-            h1 {
-                font-size: 28px;
-            }
-
-            .address-item p {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .address-item strong {
-                margin-bottom: 5px;
-            }
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(247, 37, 133, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(247, 37, 133, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(247, 37, 133, 0);
-            }
-        }
-
-        .new-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            font-size: 12px;
-            color: #fff;
-            background-color: var(--secondary-color);
-            border-radius: 12px;
-            margin-left: 8px;
-            vertical-align: middle;
-            animation: pulse 2s infinite;
-        }
-
-        .checkin-box {
-            display: none;
-            margin: 0 0 30px;
-            padding: 25px;
-            background: linear-gradient(145deg, #ffffff, #fff0f6);
-            border-radius: 16px;
-            box-shadow: 0 5px 15px rgba(247, 37, 133, 0.1);
-            position: relative;
-            overflow: hidden;
-            text-align: center;
-        }
-
-        .checkin-box::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: var(--secondary-color);
-        }
-
-        .checkin-box .section-title {
-            justify-content: center;
-            margin-bottom: 10px;
-        }
-
-        .checkin-desc {
-            margin: 10px 0 18px;
-            color: var(--text-light);
-            font-size: 14px;
-            line-height: 1.7;
-        }
-
-        .checkin-origin {
-            display: inline-block;
-            padding: 2px 10px;
-            background: rgba(247, 37, 133, 0.1);
-            color: var(--secondary-color);
-            border-radius: 999px;
-            font-family: 'SF Mono', Menlo, Consolas, monospace;
-            font-size: 13px;
-        }
-
-        .checkin-cta {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 28px;
-            background: linear-gradient(90deg, var(--secondary-color), #ff6b9f);
-            color: #fff;
-            border-radius: 999px;
-            font-size: 15px;
-            font-weight: 600;
-            text-decoration: none;
-            box-shadow: 0 4px 12px rgba(247, 37, 133, 0.25);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .checkin-cta:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(247, 37, 133, 0.35);
-            color: #fff;
-        }
+        .spin { animation: spin 0.8s linear infinite; transform-origin: center; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes shimmer { 0%, 100% { opacity: 0.55; } 50% { opacity: 1; } }
+        .hero-cta.pending #hero-cta-text { animation: shimmer 1.3s ease-in-out infinite; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-globe"></i> DZMM 网址发布页</h1>
+    <main class="wrap">
+        <header class="brand">
+            <div class="logo">
+                <span class="dot">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M4 5h16a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H9l-4 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Z" fill="#fff"/></svg>
+                </span>
+                DZMM
+            </div>
+            <div class="tagline">智能线路优选 · 自动帮你找当前最快的入口</div>
         </header>
 
-        <div class="content">
-            <section id="checkin-banner" class="checkin-box" role="region" aria-label="签到引导">
-                <div class="section-title">
-                    <i class="fas fa-gift"></i> 完成签到并领取奖励
-                </div>
-                <p class="checkin-desc">
-                    感谢访问永久入口。点击下方按钮返回主站领取签到积分。<br>
-                    即将跳转到 <span id="checkin-origin" class="checkin-origin"></span>
-                </p>
-                <a id="checkin-cta" class="checkin-cta" href="#" rel="noopener">
-                    <i class="fas fa-check-circle"></i> 立即领取奖励
-                </a>
-            </section>
-            <div class="address-box">
-                <div class="site-title"><i class="fas fa-link"></i> 访问地址</div>
-                <div class="address-item">
-                    <p><strong><i class="fas fa-certificate"></i> 推荐域名：</strong><a href="https://www.duskpine.top" target="_blank">www.duskpine.top</a><span class="new-badge">推荐</span></p>
-                </div>
-                <div class="address-item">
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.kelphin.top" target="_blank">www.kelphin.top</a></p>
-                </div>
-                <div class="address-item">
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.fendal.top" target="_blank">www.fendal.top</a></p>
-                </div>
-                <div class="address-item">
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.turfle.top" target="_blank">www.turfle.top</a></p>
-                </div>
-                <div class="address-item">
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.velvetpaw.top" target="_blank">www.velvetpaw.top</a></p>
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.aifukk.com" target="_blank">www.aifukk.com</a></p>
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.fuckaibot.com" target="_blank">www.fuckaibot.com</a></p>
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.thottai.com" target="_blank">www.thottai.com</a></p>
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.ainexa.top" target="_blank">www.ainexa.top</a></p>
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.aibora.top" target="_blank">www.aibora.top</a></p>
-                    <p><strong><i class="fas fa-sync-alt"></i> 备用域名：</strong><a href="https://www.aizora.top" target="_blank">www.aizora.top</a></p>
-                </div>
-                <div class="address-item">
-                    <p><strong><i class="fas fa-plane"></i> 海外访问域名：</strong><a href="https://www.dzmm.ai" target="_blank">www.dzmm.ai</a></p>
-                </div>
-                <div class="address-item">
-                    <p><strong><i class="fas fa-infinity"></i> 永久地址：</strong><a href="https://dzmm.github.io/dzmm-addr" target="_blank">dzmm.github.io/dzmm-addr</a></p>
-                </div>
+        <section id="checkin-banner" class="card checkin" role="region" aria-label="签到引导">
+            <div class="ct">🎁 完成签到领取奖励</div>
+            <div class="cd">点击下方按钮返回主站领取签到积分，即将前往 <span id="checkin-origin" class="origin"></span></div>
+            <a id="checkin-cta" class="cbtn" href="#" rel="noopener">立即领取 →</a>
+        </section>
+
+        <!-- Hero：一键进最快线路 -->
+        <section class="hero" id="hero">
+            <span class="hero-label" id="hero-label">
+                <svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
+                正在实测各条线路…
+            </span>
+            <div class="hero-domain" id="hero-domain">优选中</div>
+            <div class="hero-meta" id="hero-meta">从你的网络挑出最快、最稳的那条</div>
+            <a class="hero-cta pending" id="hero-cta" href="#" target="_blank" rel="noopener">
+                <span id="hero-cta-text">优选中…</span>
+                <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+        </section>
+
+        <!-- 全部线路 -->
+        <section class="card lines">
+            <div class="lines-head">
+                <span class="t">全部线路</span>
+                <button id="retest-btn" class="retest" type="button">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 4v4h-4M21 12a9 9 0 0 1-15 6.7L3 16M3 20v-4h4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    重新测速
+                </button>
             </div>
-            <div class="tips">
-                <div class="section-title"><i class="fas fa-lightbulb"></i> 温馨提示</div>
-                <ul>
-                    <li><i class="fas fa-window-maximize"></i> 为获得最佳浏览体验，推荐使用 <span class="highlight">Chrome</span>、<span class="highlight">Firefox</span> 或 <span class="highlight">Safari</span> 等现代浏览器访问本站。本站兼容 <span class="highlight">Chrome 74</span> 及以上版本。</li>
-                    <li><i class="fas fa-check-circle"></i> <strong>重要提示：本页面提供的网址除了海外访问地址，其余均为可直接访问地址，无需使用代理工具。</strong></li>
-                    <li><i class="fas fa-bookmark"></i> 建议收藏本页面地址，方便日后访问。</li>
-                    <li><i class="fas fa-exclamation-triangle"></i> 如果某个域名无法访问，请尝试其他备用域名。</li>
-                </ul>
-                <div class="section-title"><i class="fas fa-save"></i> 如何收藏本页面：</div>
-                <ol>
-                    <li><i class="fas fa-desktop"></i> 使用电脑的用户，请按键盘上的 <span class="highlight">CTRL+D</span> 进行收藏</li>
-                    <li><i class="fab fa-apple"></i> 苹果手机用户在浏览器点击分享图标，然后选择"添加到个人收藏"或"添加到主屏幕"</li>
-                    <li><i class="fab fa-android"></i> 安卓手机用户点击三点菜单，然后选择"添加到书签"或"添加到主屏幕"</li>
-                </ol>
+            <div id="rotation-list">
+                <a class="line" data-probe href="https://www.duskpine.top" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.duskpine.top</span><span class="status testing">测速中</span></a>
+                <a class="line" data-probe href="https://www.kelphin.top" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.kelphin.top</span><span class="status testing">测速中</span></a>
+                <a class="line" data-probe href="https://www.fendal.top" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.fendal.top</span><span class="status testing">测速中</span></a>
+                <a class="line" data-probe href="https://www.turfle.top" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.turfle.top</span><span class="status testing">测速中</span></a>
+                <a class="line" data-probe href="https://www.velvetpaw.top" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.velvetpaw.top</span><span class="status testing">测速中</span></a>
+                <a class="line" data-probe href="https://www.aifukk.com" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.aifukk.com</span><span class="status testing">测速中</span></a>
+                <a class="line" data-probe href="https://www.fuckaibot.com" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.fuckaibot.com</span><span class="status testing">测速中</span></a>
+                <a class="line" data-probe href="https://www.thottai.com" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.thottai.com</span><span class="status testing">测速中</span></a>
+                <a class="line" data-probe href="https://www.ainexa.top" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.ainexa.top</span><span class="status testing">测速中</span></a>
+                <a class="line" data-probe href="https://www.aibora.top" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.aibora.top</span><span class="status testing">测速中</span></a>
+                <a class="line" data-probe href="https://www.aizora.top" target="_blank" rel="noopener"><span class="rank">·</span><span class="host">www.aizora.top</span><span class="status testing">测速中</span></a>
             </div>
+        </section>
+
+        <!-- 海外 / 永久 -->
+        <section class="card alts">
+            <a class="alt" href="https://www.dzmm.ai" target="_blank" rel="noopener">
+                <span class="ico">🌐</span>
+                <span><b>海外 / 代理用户入口</b><span class="sub">www.dzmm.ai</span></span>
+            </a>
+            <a class="alt" href="https://dzmm.github.io/dzmm-addr" target="_blank" rel="noopener">
+                <span class="ico">🔖</span>
+                <span><b>永久收藏地址（请收藏本页）</b><span class="sub">dzmm.github.io/dzmm-addr</span></span>
+            </a>
+        </section>
+
+        <div class="tips">
+            💡 <b>建议收藏本页</b>：电脑按 <b>Ctrl+D</b>，手机点浏览器分享 → <b>添加到主屏幕</b>。换线路随时回来自动重测。<br>
+            本页除"海外入口"外均为<b>国内直连</b>地址，无需代理。某条打不开时，点上方<b>最快线路</b>即可。
         </div>
 
-        <footer>
-            <p><i class="far fa-copyright"></i> 2025 DZMM | 本页面所有内容仅供参考，请遵守当地法律法规</p>
-            <p style="margin-top: 8px; font-size: 12px; color: #adb5bd;">最后更新: 2026-03-24</p>
-        </footer>
-    </div>
+        <footer>© 2026 DZMM · 本页内容仅供参考，请遵守当地法律法规</footer>
+    </main>
 
     <script>
         // ========================================================================
         // ⚠️  签到回跳白名单 —— 主站域名有任何变动（新增 / 下线 / 更名）必须同步更新！
-        //
-        //   这份列表决定了从 addr 页点"立即领取奖励"之后能跳到哪些域。
-        //   不在列表里的 returnOrigin 会被拒绝，banner 根本不会显示。
-        //
-        //   ✅ 维护步骤：
-        //     1. 改下面的 ALLOWED_HOSTS 数组
-        //     2. 同步改 ./sites.txt（给人看的版本，两处必须一致）
-        //     3. 部署到所有 3 个镜像：
-        //        - DZMM-HOME/dzmm-addr  →  dzmm-home.github.io/dzmm-addr/
-        //        - dzmm/dzmm-addr       →  dzmm.github.io/dzmm-addr/
-        //        - Cloudflare Pages     →  dzmm.pages.dev
-        //
-        //   ❌ 不要做：
-        //     - 不要用通配符 '*.top' 之类，每个 apex 域必须显式列出
-        //     - 不要加入 github.io / pages.dev 等镜像域（主站才是回跳目的地）
-        //
-        //   注：电子魅魔.com 这种 Unicode 域会在运行时被 new URL() 自动 punycode
-        //   化，和浏览器 location.hostname 比对时一致，无需手写 xn-- 形式。
+        //   决定从本页点"立即领取"后能跳回哪些主站域。不在列表里的 returnOrigin 会被拒绝。
+        //   维护：1) 改下面数组  2) 同步改 ./sites.txt  3) 部署三镜像
+        //   （DZMM-HOME/dzmm-addr、dzmm/dzmm-addr、Cloudflare Pages dzmm.pages.dev）
         // ========================================================================
         var ALLOWED_HOSTS = [
             'dzmm.ai',
@@ -470,7 +296,6 @@
             var token = params.get('checkin');
             if (!token) return;
 
-            // 把白名单 normalize 成小写 punycode host，和 URL.hostname 对齐
             var normalized = ALLOWED_HOSTS.map(function (h) {
                 try { return new URL('https://' + h).hostname.toLowerCase(); }
                 catch (e) { return null; }
@@ -478,9 +303,7 @@
 
             function isAllowedHost(host) {
                 host = host.toLowerCase().replace(/^www\./, '');
-                return normalized.some(function (a) {
-                    return host === a || host.endsWith('.' + a);
-                });
+                return normalized.some(function (a) { return host === a || host.endsWith('.' + a); });
             }
 
             try {
@@ -510,6 +333,167 @@
                 }
             } catch (e) {
                 // malformed or tampered token — ignore
+            }
+        })();
+
+        // ========================================================================
+        // 浏览器侧测速 + 自动排序
+        //   每条线路 fetch 自身 /api/heartbeat（CORS 开放、CF 不缓存、不被挑战），
+        //   多轮算丢包率 + 延迟中位数，按实测速度重排：能通的延迟升序置顶（最快进 Hero），
+        //   打不开的置灰沉底。每个访客都从自己网络测，自动落到对他最快的线路。
+        // ========================================================================
+        (function () {
+            var list = document.getElementById('rotation-list');
+            if (!list) return;
+            var retestBtn = document.getElementById('retest-btn');
+            var heroLabel = document.getElementById('hero-label');
+            var heroDomain = document.getElementById('hero-domain');
+            var heroMeta = document.getElementById('hero-meta');
+            var heroCta = document.getElementById('hero-cta');
+            var heroCtaText = document.getElementById('hero-cta-text');
+            var ROUNDS = 3;
+            // GFW 封锁是快速 RST（1-2s 内失败），合法但慢的 CF 域名可能 4-6s 才回。
+            // 阈值放宽到 6s：不误把"慢但能用"判成打不开，封锁的依然快速失败。
+            var TIMEOUT_MS = 6000;
+
+            function rows() { return Array.prototype.slice.call(list.querySelectorAll('.line[data-probe]')); }
+            function hostOf(row) {
+                try { return new URL(row.href).host; } catch (e) { return null; }
+            }
+            function setStatus(row, cls, text) {
+                var s = row.querySelector('.status');
+                if (!s) return;
+                s.className = 'status ' + cls;
+                s.innerHTML = (cls.indexOf('s-') === 0 ? '<span class="pdot"></span>' : '') + text;
+            }
+
+            function probeOnce(host) {
+                return new Promise(function (resolve) {
+                    var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+                    var done = false;
+                    var ctrl = ('AbortController' in window) ? new AbortController() : null;
+                    var timer = setTimeout(function () {
+                        if (done) return; done = true;
+                        if (ctrl) ctrl.abort();
+                        resolve(null);
+                    }, TIMEOUT_MS);
+                    var url = 'https://' + host + '/api/heartbeat?_=' + Date.now() + '_' + Math.random().toString(36).slice(2);
+                    var opts = { cache: 'no-store' };
+                    if (ctrl) opts.signal = ctrl.signal;
+                    fetch(url, opts).then(function (r) {
+                        if (done) return; done = true; clearTimeout(timer);
+                        var now = (window.performance && performance.now) ? performance.now() : Date.now();
+                        resolve(r && r.ok ? (now - t0) : null);
+                    }).catch(function () {
+                        if (done) return; done = true; clearTimeout(timer); resolve(null);
+                    });
+                });
+            }
+
+            function probeHost(host) {
+                var samples = [];
+                function step(i) {
+                    if (i >= ROUNDS) {
+                        var ok = samples.filter(function (x) { return x != null; });
+                        ok.sort(function (a, b) { return a - b; });
+                        return Promise.resolve({
+                            host: host,
+                            median: ok.length ? ok[Math.floor((ok.length - 1) / 2)] : null,
+                            loss: (ROUNDS - ok.length) / ROUNDS
+                        });
+                    }
+                    return probeOnce(host).then(function (ms) { samples.push(ms); return step(i + 1); });
+                }
+                return step(0);
+            }
+
+            function band(ms) {
+                if (ms < 800) return ['s-fast', '极快 ' + Math.round(ms) + 'ms'];
+                if (ms < 2000) return ['s-ok', '流畅 ' + Math.round(ms) + 'ms'];
+                return ['s-slow', '偏慢 ' + Math.round(ms) + 'ms'];
+            }
+
+            function setHero(best, okCount, total) {
+                if (best) {
+                    heroLabel.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> 已为你优选最快线路';
+                    heroDomain.textContent = best.host;
+                    heroMeta.textContent = '延迟 ' + Math.round(best.median) + 'ms · 共 ' + okCount + '/' + total + ' 条可用，点下方直接进入';
+                    heroCta.href = 'https://' + best.host;
+                    heroCta.classList.remove('pending');
+                    heroCtaText.textContent = '立即进入';
+                } else {
+                    heroLabel.innerHTML = '⚠️ 当前网络直连线路都不可用';
+                    heroDomain.textContent = '请用海外入口';
+                    heroMeta.textContent = '你所在网络暂时连不上任何直连线路，可走海外/代理入口';
+                    heroCta.href = 'https://www.dzmm.ai';
+                    heroCta.classList.remove('pending');
+                    heroCtaText.textContent = '前往海外入口';
+                }
+            }
+
+            function run() {
+                var rs = rows();
+                if (!rs.length) return;
+                if (retestBtn) retestBtn.disabled = true;
+                heroCta.classList.add('pending');
+                heroCtaText.textContent = '优选中…';
+                heroLabel.innerHTML = '<svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg> 正在实测各条线路…';
+                heroDomain.textContent = '优选中';
+                heroMeta.textContent = '从你的网络挑出最快、最稳的那条';
+                rs.forEach(function (r) {
+                    r.classList.remove('best', 'dead');
+                    r.querySelector('.rank').textContent = '·';
+                    setStatus(r, 'testing', '测速中');
+                });
+
+                Promise.all(rs.map(function (r) {
+                    var host = hostOf(r);
+                    if (!host) return Promise.resolve({ host: null, median: null, loss: 1, row: r });
+                    return probeHost(host).then(function (res) { res.row = r; return res; });
+                })).then(function (results) {
+                    results.sort(function (a, b) {
+                        var ab = a.median == null, bb = b.median == null;
+                        if (ab !== bb) return ab ? 1 : -1;
+                        if (ab && bb) return 0;
+                        return a.median - b.median;
+                    });
+
+                    var best = null, okCount = 0;
+                    results.forEach(function (res, i) {
+                        var r = res.row;
+                        list.appendChild(r);
+                        var rank = r.querySelector('.rank');
+                        if (res.median == null) {
+                            r.classList.add('dead');
+                            rank.textContent = '–';
+                            setStatus(r, 's-bad', '暂不可用');
+                            return;
+                        }
+                        okCount++;
+                        rank.textContent = (best ? okCount : 1);
+                        if (!best) {
+                            best = res;
+                            r.classList.add('best');
+                            var lt = res.loss ? '丢包' + Math.round(res.loss * 100) + '% · ' : '';
+                            setStatus(r, 's-fast', lt + '最快 ' + Math.round(res.median) + 'ms');
+                        } else {
+                            var bd = band(res.median);
+                            setStatus(r, bd[0], bd[1]);
+                        }
+                    });
+
+                    setHero(best, okCount, results.length);
+                    if (retestBtn) retestBtn.disabled = false;
+                });
+            }
+
+            if (retestBtn) retestBtn.addEventListener('click', run);
+            if (window.fetch && window.Promise) {
+                run();
+            } else {
+                heroLabel.textContent = '当前浏览器较旧';
+                heroDomain.textContent = '请逐条尝试下方线路';
+                heroCta.style.display = 'none';
             }
         })();
     </script>
