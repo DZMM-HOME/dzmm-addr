@@ -249,7 +249,7 @@
         <section class="card alts">
             <a class="alt" href="https://www.dzmm.ai" target="_blank" rel="noopener">
                 <span class="ico">🌐</span>
-                <span><b>海外 / 代理用户入口</b><span class="sub">www.dzmm.ai</span></span>
+                <span><b>海外访问地址</b><span class="sub">www.dzmm.ai</span></span>
             </a>
             <a class="alt" href="https://dzmm.github.io/dzmm-addr" target="_blank" rel="noopener">
                 <span class="ico">🔖</span>
@@ -259,7 +259,7 @@
 
         <div class="tips">
             💡 <b>建议收藏本页</b>：电脑按 <b>Ctrl+D</b>，手机点浏览器分享 → <b>添加到主屏幕</b>。换线路随时回来自动重测。<br>
-            本页除"海外入口"外均为<b>国内直连</b>地址，无需代理。某条打不开时，点上方<b>最快线路</b>即可。
+            本页线路均为<b>国内可直接访问</b>地址；某条打不开时，点上方<b>最快线路</b>即可。
         </div>
 
         <footer>© 2026 DZMM · 本页内容仅供参考，请遵守当地法律法规</footer>
@@ -337,10 +337,11 @@
         })();
 
         // ========================================================================
-        // 浏览器侧测速 + 自动排序
-        //   每条线路 fetch 自身 /api/heartbeat（CORS 开放、CF 不缓存、不被挑战），
-        //   多轮算丢包率 + 延迟中位数，按实测速度重排：能通的延迟升序置顶（最快进 Hero），
-        //   打不开的置灰沉底。每个访客都从自己网络测，自动落到对他最快的线路。
+        // 浏览器侧测速 + 自动排序（并行 + 进度式 + 即时默认入口）
+        //   打开页面立刻给一个 hardcode 默认最快线路（可直接点进，不必等测速）。
+        //   同时对每条线路【并行】fetch /api/heartbeat（CORS 开放、CF 不缓存、不被挑战），
+        //   每条测完即时更新该行 + 把 Hero 切到目前最快；全部测完锁定最终排序。
+        //   慢/打不开的线路不阻塞页面（进度式 + 看门狗兜底，绝不停在"测速中"）。
         // ========================================================================
         (function () {
             var list = document.getElementById('rotation-list');
@@ -355,28 +356,38 @@
             // GFW 封锁是快速 RST（1-2s 内失败），合法但慢的 CF 域名可能 4-6s 才回。
             // 阈值放宽到 6s：不误把"慢但能用"判成打不开，封锁的依然快速失败。
             var TIMEOUT_MS = 6000;
+            // hardcode 默认最快线路（按历史实测稳定性排序）：页面一开就给可直接点的入口，不必等测速。
+            var DEFAULT_BEST = ['aifukk.com', 'fuckaibot.com', 'thottai.com', 'ainexa.top', 'velvetpaw.top', 'aibora.top', 'aizora.top', 'fendal.top'];
+            var SPIN = '<svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg> ';
+            var CHECK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> ';
 
             function rows() { return Array.prototype.slice.call(list.querySelectorAll('.line[data-probe]')); }
-            function hostOf(row) {
-                try { return new URL(row.href).host; } catch (e) { return null; }
-            }
+            function hostOf(row) { try { return new URL(row.href).host; } catch (e) { return null; } }
             function setStatus(row, cls, text) {
                 var s = row.querySelector('.status');
                 if (!s) return;
                 s.className = 'status ' + cls;
                 s.innerHTML = (cls.indexOf('s-') === 0 ? '<span class="pdot"></span>' : '') + text;
             }
+            function setHeroTo(host) {
+                heroDomain.textContent = host;
+                heroCta.href = 'https://' + host;
+                heroCta.classList.remove('pending');
+                heroCtaText.textContent = '立即进入';
+            }
+            function band(ms) {
+                if (ms < 800) return ['s-fast', '极快 ' + Math.round(ms) + 'ms'];
+                if (ms < 2000) return ['s-ok', '流畅 ' + Math.round(ms) + 'ms'];
+                return ['s-slow', '偏慢 ' + Math.round(ms) + 'ms'];
+            }
 
+            // 单次探测：必定在 TIMEOUT_MS 内 resolve（成功=耗时ms / 失败或超时=null）
             function probeOnce(host) {
                 return new Promise(function (resolve) {
                     var t0 = (window.performance && performance.now) ? performance.now() : Date.now();
                     var done = false;
                     var ctrl = ('AbortController' in window) ? new AbortController() : null;
-                    var timer = setTimeout(function () {
-                        if (done) return; done = true;
-                        if (ctrl) ctrl.abort();
-                        resolve(null);
-                    }, TIMEOUT_MS);
+                    var timer = setTimeout(function () { if (done) return; done = true; if (ctrl) ctrl.abort(); resolve(null); }, TIMEOUT_MS);
                     var url = 'https://' + host + '/api/heartbeat?_=' + Date.now() + '_' + Math.random().toString(36).slice(2);
                     var opts = { cache: 'no-store' };
                     if (ctrl) opts.signal = ctrl.signal;
@@ -384,50 +395,32 @@
                         if (done) return; done = true; clearTimeout(timer);
                         var now = (window.performance && performance.now) ? performance.now() : Date.now();
                         resolve(r && r.ok ? (now - t0) : null);
-                    }).catch(function () {
-                        if (done) return; done = true; clearTimeout(timer); resolve(null);
-                    });
+                    }).catch(function () { if (done) return; done = true; clearTimeout(timer); resolve(null); });
                 });
             }
 
+            // ROUNDS 轮【并行】跑（不再串行）：整条线路最坏 ≈ 1×timeout，而非 ROUNDS×timeout
             function probeHost(host) {
-                var samples = [];
-                function step(i) {
-                    if (i >= ROUNDS) {
-                        var ok = samples.filter(function (x) { return x != null; });
-                        ok.sort(function (a, b) { return a - b; });
-                        return Promise.resolve({
-                            host: host,
-                            median: ok.length ? ok[Math.floor((ok.length - 1) / 2)] : null,
-                            loss: (ROUNDS - ok.length) / ROUNDS
-                        });
-                    }
-                    return probeOnce(host).then(function (ms) { samples.push(ms); return step(i + 1); });
+                var arr = [];
+                for (var i = 0; i < ROUNDS; i++) arr.push(probeOnce(host));
+                return Promise.all(arr).then(function (samples) {
+                    var ok = samples.filter(function (x) { return x != null; });
+                    ok.sort(function (a, b) { return a - b; });
+                    return { host: host, median: ok.length ? ok[Math.floor((ok.length - 1) / 2)] : null, loss: (ROUNDS - ok.length) / ROUNDS };
+                });
+            }
+
+            // 即时默认入口：取 DEFAULT_BEST 里第一个页面上存在的域名，页面一开就能点
+            function applyDefaultHero() {
+                var hs = rows().map(hostOf).filter(Boolean), pick = null, i;
+                for (i = 0; i < DEFAULT_BEST.length && !pick; i++) {
+                    if (hs.indexOf('www.' + DEFAULT_BEST[i]) !== -1) pick = 'www.' + DEFAULT_BEST[i];
                 }
-                return step(0);
-            }
-
-            function band(ms) {
-                if (ms < 800) return ['s-fast', '极快 ' + Math.round(ms) + 'ms'];
-                if (ms < 2000) return ['s-ok', '流畅 ' + Math.round(ms) + 'ms'];
-                return ['s-slow', '偏慢 ' + Math.round(ms) + 'ms'];
-            }
-
-            function setHero(best, okCount, total) {
-                if (best) {
-                    heroLabel.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> 已为你优选最快线路';
-                    heroDomain.textContent = best.host;
-                    heroMeta.textContent = '延迟 ' + Math.round(best.median) + 'ms · 共 ' + okCount + '/' + total + ' 条可用，点下方直接进入';
-                    heroCta.href = 'https://' + best.host;
-                    heroCta.classList.remove('pending');
-                    heroCtaText.textContent = '立即进入';
-                } else {
-                    heroLabel.innerHTML = '⚠️ 当前网络直连线路都不可用';
-                    heroDomain.textContent = '请用海外入口';
-                    heroMeta.textContent = '你所在网络暂时连不上任何直连线路，可走海外/代理入口';
-                    heroCta.href = 'https://www.dzmm.ai';
-                    heroCta.classList.remove('pending');
-                    heroCtaText.textContent = '前往海外入口';
+                if (!pick && hs.length) pick = hs[0];
+                if (pick) {
+                    setHeroTo(pick);
+                    heroLabel.innerHTML = SPIN + '默认线路 · 正在为你实测更快的';
+                    heroMeta.textContent = '不用等，可直接进入；测完会自动切到对你最快的线路';
                 }
             }
 
@@ -435,65 +428,78 @@
                 var rs = rows();
                 if (!rs.length) return;
                 if (retestBtn) retestBtn.disabled = true;
-                heroCta.classList.add('pending');
-                heroCtaText.textContent = '优选中…';
-                heroLabel.innerHTML = '<svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg> 正在实测各条线路…';
-                heroDomain.textContent = '优选中';
-                heroMeta.textContent = '从你的网络挑出最快、最稳的那条';
-                rs.forEach(function (r) {
-                    r.classList.remove('best', 'dead');
-                    r.querySelector('.rank').textContent = '·';
-                    setStatus(r, 'testing', '测速中');
-                });
+                rs.forEach(function (r) { r.classList.remove('best', 'dead'); r.querySelector('.rank').textContent = '·'; setStatus(r, 'testing', '测速中'); });
+                applyDefaultHero();   // t=0 即可点，绝不空等
 
-                Promise.all(rs.map(function (r) {
-                    var host = hostOf(r);
-                    if (!host) return Promise.resolve({ host: null, median: null, loss: 1, row: r });
-                    return probeHost(host).then(function (res) { res.row = r; return res; });
-                })).then(function (results) {
+                var results = [];
+                var bestSoFar = null;
+                var pending = rs.length;
+                var finished = false;
+
+                function finalize() {
+                    if (finished) return;
+                    finished = true;
+                    rs.forEach(function (r) {   // 没回来的补成"暂不可用"
+                        for (var k = 0; k < results.length; k++) { if (results[k].row === r) return; }
+                        results.push({ host: hostOf(r), median: null, loss: 1, row: r });
+                    });
                     results.sort(function (a, b) {
                         var ab = a.median == null, bb = b.median == null;
                         if (ab !== bb) return ab ? 1 : -1;
                         if (ab && bb) return 0;
                         return a.median - b.median;
                     });
-
                     var best = null, okCount = 0;
-                    results.forEach(function (res, i) {
-                        var r = res.row;
-                        list.appendChild(r);
+                    results.forEach(function (res) {
+                        var r = res.row; list.appendChild(r);
                         var rank = r.querySelector('.rank');
-                        if (res.median == null) {
-                            r.classList.add('dead');
-                            rank.textContent = '–';
-                            setStatus(r, 's-bad', '暂不可用');
-                            return;
-                        }
+                        if (res.median == null) { r.classList.add('dead'); rank.textContent = '–'; setStatus(r, 's-bad', '暂不可用'); return; }
                         okCount++;
-                        rank.textContent = (best ? okCount : 1);
-                        if (!best) {
-                            best = res;
-                            r.classList.add('best');
-                            var lt = res.loss ? '丢包' + Math.round(res.loss * 100) + '% · ' : '';
-                            setStatus(r, 's-fast', lt + '最快 ' + Math.round(res.median) + 'ms');
+                        if (!best) { best = res; r.classList.add('best'); rank.textContent = '1'; var lt = res.loss ? '丢包' + Math.round(res.loss * 100) + '% · ' : ''; setStatus(r, 's-fast', lt + '最快 ' + Math.round(res.median) + 'ms'); }
+                        else { rank.textContent = okCount; }
+                    });
+                    if (best) {
+                        setHeroTo(best.host);
+                        heroLabel.innerHTML = CHECK + '已为你优选最快线路';
+                        heroMeta.textContent = '延迟 ' + Math.round(best.median) + 'ms · 共 ' + okCount + '/' + results.length + ' 条可用，点上方直接进入';
+                    } else {
+                        heroLabel.innerHTML = '已为你保留默认入口';
+                        heroMeta.textContent = '当前网络实测都不顺，可先点上方默认线路，或试下方海外访问地址';
+                    }
+                    if (retestBtn) retestBtn.disabled = false;
+                }
+
+                rs.forEach(function (r) {
+                    probeHost(hostOf(r)).then(function (res) {
+                        res.row = r;
+                        results.push(res);
+                        pending--;
+                        if (res.median == null) {
+                            setStatus(r, 's-bad', '暂不可用');
                         } else {
                             var bd = band(res.median);
                             setStatus(r, bd[0], bd[1]);
+                            if (!bestSoFar || res.median < bestSoFar.median) {   // 进度式：一出现更快的就切 Hero
+                                bestSoFar = res;
+                                setHeroTo(res.host);
+                                heroLabel.innerHTML = SPIN + '已找到更快线路（仍在测剩余）';
+                                heroMeta.textContent = '延迟 ' + Math.round(res.median) + 'ms · 可直接进入';
+                            }
                         }
+                        if (pending === 0) finalize();
                     });
-
-                    setHero(best, okCount, results.length);
-                    if (retestBtn) retestBtn.disabled = false;
                 });
+
+                setTimeout(finalize, TIMEOUT_MS + 1500);   // 看门狗：再慢也在此结束，绝不停在"测速中"
             }
 
             if (retestBtn) retestBtn.addEventListener('click', run);
             if (window.fetch && window.Promise) {
                 run();
             } else {
-                heroLabel.textContent = '当前浏览器较旧';
-                heroDomain.textContent = '请逐条尝试下方线路';
-                heroCta.style.display = 'none';
+                applyDefaultHero();
+                heroLabel.innerHTML = '已为你给出默认入口';
+                heroMeta.textContent = '当前浏览器较旧，未自动测速，可直接点上方进入';
             }
         })();
     </script>
