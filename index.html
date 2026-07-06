@@ -271,17 +271,26 @@
 
     <script>
         // ========================================================================
-        // ⚠️  签到回跳白名单 —— 主站域名有任何变动（新增 / 下线 / 更名）必须同步更新！
+        // ⚠️  签到回跳白名单 —— 这是安全边界，不等同于当前发布页线路池！
         //   决定从本页点"立即领取"后能跳回哪些主站域。不在列表里的 returnOrigin 会被拒绝。
-        //   维护：1) 改下面数组  2) 同步改 ./sites.txt  3) 部署三镜像
-        //   （DZMM-HOME/dzmm-addr、dzmm/dzmm-addr、Cloudflare Pages dzmm.pages.dev）
+        //
+        //   AI / 人工维护规则：
+        //   1) 新增主站域名：加到 CHECKIN_ACTIVE_HOSTS；若要展示在线路页，再同步改 ./sites.txt。
+        //   2) 下线或从线路页移除域名：不要直接从签到白名单删除，先移到 CHECKIN_LEGACY_HOSTS。
+        //      旧域名仍可能有用户在访问，删白名单会导致签到回调无法跳回主站。
+        //   3) 只有确认历史入口彻底废弃后，才可以从 CHECKIN_LEGACY_HOSTS 删除。
+        //   4) 部署三镜像：
+        //      DZMM-HOME/dzmm-addr、dzmm/dzmm-addr、Cloudflare Pages dzmm.pages.dev
         // ========================================================================
-        var ALLOWED_HOSTS = [
+        var CHECKIN_PRIMARY_HOSTS = [
             'dzmm.ai',
             'dzmm.io',
             'laopo.ai',
             'laopoai.com',
             '电子魅魔.com',
+        ];
+
+        var CHECKIN_ACTIVE_HOSTS = [
             'aiaptx.com',
             'aicbnv.com',
             'aikda.com',
@@ -298,6 +307,21 @@
             'museloom.xyz',
             'echolore.xyz',
         ];
+
+        // 历史发布过、现在不再展示在线路页的域名。保留用于签到回跳向前兼容。
+        // 来源：git history 中曾出现于 sites.txt / 发布页线路 / 旧 ALLOWED_HOSTS。
+        var CHECKIN_LEGACY_HOSTS = [
+            'duskpine.top',
+            'kelphin.top',
+            'fendal.top',
+            'turfle.top',
+            'velvetpaw.top',
+            'ainexa.top',
+            'aibora.top',
+            'aizora.top',
+        ];
+
+        var ALLOWED_HOSTS = CHECKIN_PRIMARY_HOSTS.concat(CHECKIN_ACTIVE_HOSTS, CHECKIN_LEGACY_HOSTS);
 
         (function () {
             var params = new URLSearchParams(location.search);
