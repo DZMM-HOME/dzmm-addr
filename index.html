@@ -421,7 +421,11 @@
             // 阈值放宽到 6s：不误把"慢但能用"判成打不开，封锁的依然快速失败。
             var TIMEOUT_MS = 6000;
             // hardcode 默认最快线路（按历史实测稳定性排序）：页面一开就给可直接点的入口，不必等测速。
-            var DEFAULT_BEST = ['aifukk.com', 'fuckaibot.com', 'thottai.com', 'aicbnv.com', 'aikda.com'];
+            var DEFAULT_BEST = [
+            'aifukk.com',
+            'fuckaibot.com',
+            'thottai.com',
+            'aicbnv.com',];
             var SPIN = '<svg class="spin" width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 3a9 9 0 1 0 9 9" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg> ';
             var CHECK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg> ';
 
