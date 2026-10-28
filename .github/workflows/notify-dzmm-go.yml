@@ -1,0 +1,27 @@
+# sites.txt 有提交时通知 DZMM-HOME/dzmm-go 同步跳转页名单（工单 studio#11007）。
+# 钥匙 DZMM_GO_DISPATCH_TOKEN 只授权 dzmm-go，放在本仓的加密设置里；没设置时只打一行提示，dzmm-go 每小时自己兜底同步。
+name: notify-dzmm-go
+on:
+  push:
+    branches: [main]
+    paths: [sites.txt]
+permissions:
+  contents: read
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: repository_dispatch → dzmm-go
+        env:
+          TOKEN: ${{ secrets.DZMM_GO_DISPATCH_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::notice::DZMM_GO_DISPATCH_TOKEN 未设置，跳过通知（dzmm-go 每小时兜底同步）"
+            exit 0
+          fi
+          curl -fsS -X POST \
+            -H "Authorization: Bearer ${TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/DZMM-HOME/dzmm-go/dispatches \
+            -d "{\"event_type\":\"sites-updated\",\"client_payload\":{\"sha\":\"${GITHUB_SHA}\"}}"
