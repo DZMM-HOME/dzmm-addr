@@ -182,8 +182,25 @@
         }
 
         footer { text-align: center; font-size: 12px; color: #94a3b8; padding: 8px 0 4px; }
-        .contact { text-align: center; font-size: 13px; color: var(--muted); padding: 2px 8px 6px; }
-        .contact a { color: var(--ink); font-weight: 600; word-break: break-all; }
+
+        /* 邮箱一键复制 + 提示 */
+        button.alt {
+            width: calc(100% - 12px); background: none; border: none; cursor: pointer;
+            font-family: inherit; text-align: left; line-height: inherit;
+        }
+        .copy-tip {
+            position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); z-index: 10;
+            transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 10px 11px 16px; border-radius: 14px;
+            background: var(--ink); color: #fff; font-size: 13.5px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.25);
+        }
+        .copy-tip[hidden] { display: none; }
+        .copy-tip .x {
+            flex: none; width: 24px; height: 24px; border-radius: 8px; border: none; cursor: pointer;
+            background: rgba(255, 255, 255, 0.14); color: #fff; font-size: 15px; line-height: 1; font-family: inherit;
+        }
 
         .spin { animation: spin 0.8s linear infinite; transform-origin: center; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -241,6 +258,14 @@
 </div>
         </section>
 
+        <!-- 发邮件拿最新地址：点击复制邮箱，不跳转邮件 App -->
+        <section class="card alts">
+            <button class="alt" id="mail-copy" type="button" data-email="kuakirain7793@gmail.com">
+                <span class="ico">✉️</span>
+                <span><b>发邮件到这个邮箱，会自动回复最新地址</b><span class="sub">kuakirain7793@gmail.com</span></span>
+            </button>
+        </section>
+
         <!-- 海外 / 永久 -->
         <section class="card alts">
             <a class="alt" href="https://www.dzmm.ai" target="_blank" rel="noopener">
@@ -258,7 +283,10 @@
             本页线路均为<b>国内可直接访问</b>地址；某条打不开时，点上方<b>最快线路</b>即可。
         </div>
 
-        <div class="contact">找不到入口？发邮件到 <a href="mailto:kuakirain7793@gmail.com">kuakirain7793@gmail.com</a>，会自动回复最新网址</div>
+        <div class="copy-tip" id="copy-tip" role="status" aria-live="polite" hidden>
+            <span id="copy-tip-text">邮箱地址已复制，可以去发信，内容随意</span>
+            <button class="x" id="copy-tip-close" type="button" aria-label="关闭">×</button>
+        </div>
 
         <footer>© 2026 DZMM · 本页内容仅供参考，请遵守当地法律法规</footer>
     </main>
@@ -394,6 +422,51 @@
             } catch (e) {
                 // malformed or tampered token — ignore
             }
+        })();
+
+        // ========================================================================
+        // 邮箱一键复制：点整行复制地址并弹提示 3 秒（可手动关），不打开邮件 App
+        // ========================================================================
+        (function () {
+            var btn = document.getElementById('mail-copy');
+            var tip = document.getElementById('copy-tip');
+            var tipText = document.getElementById('copy-tip-text');
+            var tipClose = document.getElementById('copy-tip-close');
+            if (!btn || !tip) return;
+            var timer = null;
+            function hideTip() { tip.hidden = true; if (timer) { clearTimeout(timer); timer = null; } }
+            function showTip(text) {
+                tipText.textContent = text;
+                tip.hidden = false;
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(hideTip, 3000);
+            }
+            function legacyCopy(text) {
+                var ta = document.createElement('textarea');
+                ta.value = text;
+                ta.setAttribute('readonly', '');
+                ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.left = '0'; ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try { ta.setSelectionRange(0, text.length); } catch (e) {}
+                var ok = false;
+                try { ok = document.execCommand('copy'); } catch (e) {}
+                document.body.removeChild(ta);
+                return ok;
+            }
+            function done(ok) {
+                showTip(ok ? '邮箱地址已复制，可以去发信，内容随意'
+                           : '没能自动复制，请手动复制：' + btn.getAttribute('data-email'));
+            }
+            btn.addEventListener('click', function () {
+                var email = btn.getAttribute('data-email');
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(email).then(function () { done(true); }, function () { done(legacyCopy(email)); });
+                } else {
+                    done(legacyCopy(email));
+                }
+            });
+            if (tipClose) tipClose.addEventListener('click', hideTip);
         })();
 
         // ========================================================================
