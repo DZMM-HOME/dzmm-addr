@@ -188,8 +188,14 @@
             width: calc(100% - 12px); background: none; border: none; cursor: pointer;
             font-family: inherit; text-align: left; line-height: inherit;
         }
+        button.alt .txt { flex: 1; min-width: 0; }
+        button.alt .copy-ico {
+            flex: none; width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center;
+            color: var(--muted);
+        }
+        button.alt .copy-ico svg { width: 18px; height: 18px; }
         .copy-tip {
-            position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); z-index: 10;
+            position: fixed; left: 50%; top: calc(12vh + env(safe-area-inset-top)); z-index: 10;
             transform: translateX(-50%); width: max-content; max-width: calc(100% - 32px);
             display: flex; align-items: center; gap: 10px;
             padding: 11px 10px 11px 16px; border-radius: 14px;
@@ -262,7 +268,8 @@
         <section class="card alts">
             <button class="alt" id="mail-copy" type="button" data-email="kuakirain7793@gmail.com">
                 <span class="ico">✉️</span>
-                <span><b>发邮件到这个邮箱，会自动回复最新地址</b><span class="sub">kuakirain7793@gmail.com</span></span>
+                <span class="txt"><b>发邮件到这个邮箱，会自动回复最新地址</b><span class="sub">kuakirain7793@gmail.com</span></span>
+                <span class="copy-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span>
             </button>
         </section>
 
